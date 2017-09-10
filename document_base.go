@@ -23,8 +23,11 @@ type DocumentBase struct {
 
 	Id        bson.ObjectId `json:"id" bson:"_id,omitempty"`
 	CreatedAt time.Time     `json:"createdAt" bson:"createdAt"`
+	CreatedBy bson.ObjectId	`json:"createdBy" bson:"createdBy,omitempty"`
 	UpdatedAt time.Time     `json:"updatedAt" bson:"updatedAt"`
+	UpdatedBy bson.ObjectId	`json:"updatedBy" bson:"updatedBy,omitempty"`
 	Deleted   bool          `json:"deleted" bson:"deleted"`
+	Version   int64         `json:"version" bson:"version"`
 }
 
 type m map[string]interface{}
@@ -57,12 +60,28 @@ func (self *DocumentBase) SetCreatedAt(createdAt time.Time) {
 	self.CreatedAt = createdAt
 }
 
+func (self *DocumentBase) SetCreatedBy(createBy bson.ObjectId) {
+	self.UpdatedBy = createBy
+}
+
+func (self *DocumentBase) GetCreatedBy()  bson.ObjectId {
+	return self.CreatedBy
+}
+
 func (self *DocumentBase) SetUpdatedAt(updatedAt time.Time) {
 	self.UpdatedAt = updatedAt
 }
 
 func (self *DocumentBase) GetUpdatedAt() time.Time {
 	return self.UpdatedAt
+}
+
+func (self *DocumentBase) SetUpdatedBy(updatedBy bson.ObjectId) {
+	self.UpdatedBy = updatedBy
+}
+
+func (self *DocumentBase) GetUpdatedBy()  bson.ObjectId {
+	return self.UpdatedBy
 }
 
 func (self *DocumentBase) SetDeleted(deleted bool) {
@@ -72,6 +91,15 @@ func (self *DocumentBase) SetDeleted(deleted bool) {
 func (self *DocumentBase) IsDeleted() bool {
 	return self.Deleted
 }
+
+func (self *DocumentBase) SetVersion() {
+	self.Version += 1
+}
+
+func (self *DocumentBase) GetVersion()  int64 {
+	return self.Version
+}
+
 
 func (self *DocumentBase) AppendError(errorList *[]error, message string) {
 
@@ -263,9 +291,12 @@ func (self *DocumentBase) Update(content interface{}) (error, map[string]interfa
 			if typeMap, ok := mapValue.(map[string]interface{}); ok {
 
 				delete(typeMap, "createdAt")
+				delete(typeMap, "createdBy")
 				delete(typeMap, "updatedAt")
+				delete(typeMap, "updatedBy")
 				delete(typeMap, "id")
 				delete(typeMap, "deleted")
+				delete(typeMap, "version")
 			}
 
 			bytes, err := json.Marshal(mapValue)
@@ -290,9 +321,12 @@ func (self *DocumentBase) Update(content interface{}) (error, map[string]interfa
 	} else if contentMap, ok := content.(map[string]interface{}); ok {
 
 		delete(contentMap, "createdAt")
+		delete(contentMap, "createdBy")
 		delete(contentMap, "updatedAt")
+		delete(contentMap, "updatedBy")
 		delete(contentMap, "id")
 		delete(contentMap, "deleted")
+		delete(contentMap, "version")
 
 		bytes, err := json.Marshal(contentMap)
 
@@ -569,6 +603,7 @@ func (self *DocumentBase) Save() error {
 
 		self.SetCreatedAt(now)
 		self.SetUpdatedAt(now)
+		self.SetVersion()
 
 		self.SetId(bson.NewObjectId())
 
@@ -584,6 +619,7 @@ func (self *DocumentBase) Save() error {
 	} else {
 
 		self.SetUpdatedAt(now)
+		self.SetVersion()
 		_, errs := collection.UpsertId(self.Id, self.document)
 
 		if errs != nil {
