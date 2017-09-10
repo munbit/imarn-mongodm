@@ -121,11 +121,20 @@ type (
 		SetCreatedAt(time.Time)
 		GetCreatedAt() time.Time
 
+		SetCreatedBy(bson.ObjectId)
+		GetCreatedBy() bson.ObjectId
+
 		SetUpdatedAt(time.Time)
 		GetUpdatedAt() time.Time
 
+		SetUpdatedBy(bson.ObjectId)
+		GetUpdatedBy() bson.ObjectId
+
 		SetDeleted(bool)
 		IsDeleted() bool
+
+		SetVersion()
+		GetVersion() int64
 
 		SetCollection(*mgo.Collection)
 		SetDocument(document IDocumentBase)

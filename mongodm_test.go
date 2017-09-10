@@ -68,8 +68,8 @@ func TestConnection(t *testing.T) {
 	dbConfig := &Config{
 		DatabaseHosts:    []string{DBHost},
 		DatabaseName:     DBName,
-		DatabaseUser:     DBUser,
-		DatabasePassword: DBPass,
+		//DatabaseUser:     DBUser,
+		//DatabasePassword: DBPass,
 		Locals:           localMap["en-US"],
 	}
 
